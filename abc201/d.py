@@ -1,34 +1,38 @@
 H,W = map(int,input().split())
 
-A = ['']*H
+A = [input() for _ in range(H)]
 
-for i in range(H):
-    A[i] = input()
+d = {'+':1, '-':-1}
 
-t = 0
-a = 0
+dp = [[0]*W for _ in range(H)]
 
-for h in range(H):
-    for w in range(W):
-        if (h+w)%2==1:
-            if A[h][w]=='+':
-                t+=1
-            else:
-                t-=1
+for i in range(H-1,-1,-1):
+    for j in range(W-1,-1,-1):
+        if i==H-1 and j==W-1:
+            continue
+
+        if (i+j)%2==0:
+            dp[i][j] = -(10**10)
+            if i+1<H:
+                dp[i][j]=max(dp[i][j], dp[i+1][j]+d[A[i+1][j]])
+            if j+1<W:
+                dp[i][j]=max(dp[i][j], dp[i][j+1]+d[A[i][j+1]])
         else:
-            if A[h][w]=='+':
-                a+=1
-            else:
-                a-=1            
+            dp[i][j] = 10**10
+            if i+1<H:
+                dp[i][j]=min(dp[i][j], dp[i+1][j]-d[A[i+1][j]])
+            if j+1<W:
+                dp[i][j]=min(dp[i][j], dp[i][j+1]-d[A[i][j+1]])
 
-if A[0][0]=='+':
-    a-=1
-else:
-    a+=1
+        # if i+1<H:
+        #     dp[i][j]=max(dp[i][j], -dp[i+1][j]+d[A[i+1][j]])
+        # if j+1<W:
+        #     dp[i][j]=max(dp[i][j], -dp[i][j+1]+d[A[i][j+1]])
 
-if t>a:
+
+if dp[0][0]>0:
     print("Takahashi")
-elif t==a:
+elif dp[0][0]==0:
     print("Draw")
 else:
     print("Aoki")
