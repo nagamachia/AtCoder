@@ -6,32 +6,24 @@ K=[0]*Q
 for q in range(Q):
     K[q]=int(input())
 
-maxK = max(K)
-ans = [0]*maxK
-start=1
-startidx=0
-cnt=0
+A=[0]+A
+C=[0]*(N+1)
 
-while ans[-1]==0:
-    # print(ans)
-    if cnt<N:
-        minA=A[cnt]
-        if start!=minA:
-            if startidx+minA-start<=maxK:
-                ans[startidx:startidx+minA-start]=list(range(start,minA))
-            else:
-                ans[startidx:]=list(range(start,start+maxK-startidx))
-        # for n in range(start,min(A)):
-        #     ans[startidx] = n
-        #     startidx+=1
-        startidx+=minA-start
-        start=minA+1
-        cnt+=1
-    else:
-        ans[startidx:]=list(range(A[-1]+1,maxK-startidx+A[-1]+1))
+for i in range(1,N+1):
+    C[i]=C[i-1]+A[i]-A[i-1]-1
 
-# print(ans)
 
 for k in K:
-    print(ans[k-1])
-    
+    low=1
+    high=N
+    if C[N]<k:
+        ans=A[N]+k-C[N]
+    else:
+        while low < high:
+            mid = (low+high)//2
+            if C[mid]>=k:
+                high=mid
+            else:
+                low=mid+1
+        ans=A[low]-1-C[low]+k
+    print(ans)
