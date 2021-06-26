@@ -1,25 +1,84 @@
-from collections import Counter
-from itertools import chain
+from collections import defaultdict
 
-N=int(input())
-A = list(map(int,input().split()))
+class UnionFind():
+    def __init__(self, n):
+        self.n = n
+        self.parents = [-1] * n
 
-not_circ = []
+    def find(self, x):
+        if self.parents[x] < 0:
+            return x
+        else:
+            self.parents[x] = self.find(self.parents[x])
+            return self.parents[x]
 
-# for i in range(N//2):
-#     if A[i]!=A[N-1-i]:
-#         not_circ.extend([A[i],A[N-1-i]])
+    def union(self, x, y):
+        x = self.find(x)
+        y = self.find(y)
 
-# c = Counter(not_circ)
-# l=len(c)
-# if l==0:
-#     print(0)
-# else:
-#     print(l-1)
+        if x == y:
+            return
 
-for i in range(N//2):
-    if A[i]!=A[N-1-i]:
-        not_circ.append([A[i],A[N-1-i]])
+        if self.parents[x] > self.parents[y]:
+            x, y = y, x
 
-not_circ_flatten = list(chain.from_iterable(not_circ))
+        self.parents[x] += self.parents[y]
+        self.parents[y] = x
 
+    def size(self, x):
+        return -self.parents[self.find(x)]
+
+    def same(self, x, y):
+        return self.find(x) == self.find(y)
+
+    def members(self, x):
+        root = self.find(x)
+        return [i for i in range(self.n) if self.find(i) == root]
+
+    def roots(self):
+        return [i for i, x in enumerate(self.parents) if x < 0]
+
+    def group_count(self):
+        return len(self.roots())
+
+    def all_group_members(self):
+        group_members = defaultdict(list)
+        for member in range(self.n):
+            group_members[self.find(member)].append(member)
+        return group_members
+
+    def all_sizes(self):
+        sizes = []
+
+        for i in range(self.n):
+            size = self.parents[i]
+            if size < 0:
+                sizes.append(-size)
+        return sizes
+
+    def __str__(self):
+        return '\n'.join(f'{r}: {m}' for r, m in self.all_group_members().items())
+
+N = int(input())
+A = list(map(int, input().split()))
+uf = UnionFind(200005)
+if N % 2 == 0:
+    U = A[: N // 2]
+    D = A[N // 2 :]
+    D = D[::-1]
+else:
+    U = A[: N // 2 + 1]
+    D = A[N // 2 :]
+    D = D[::-1]
+# print(U, D)
+for i in range(N // 2):
+    if U[i] == D[i]:
+        continue
+    a, b = U[i], D[i]
+    uf.union(a, b)
+
+ans = 0
+for x in uf.all_sizes():
+    ans += x - 1
+
+print(ans)
